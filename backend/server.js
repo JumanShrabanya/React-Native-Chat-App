@@ -1,24 +1,20 @@
-const express = require("express");
+const express = require("express"); // Import express only once
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
+const userRoutes = require("./routes/userRoutes.js");
+const connectDB = require("./config/mongodb.js");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
 app.use(cors());
 
-app.get("/api/hello", (req, res) => {
-  res.json({ message: "Hello from the Node.js backend!" });
-});
+app.use("/api", userRoutes);
 
-// app.post("/api/data", (req, res) => {
-//   const receivedData = req.body;
-//   console.log("Received data:", receivedData);
-//   res.json({ message: "Data received successfully!", data: receivedData });
-// });
-
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+connectDB().then(() => {
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
 });
