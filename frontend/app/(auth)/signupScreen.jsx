@@ -11,24 +11,29 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import registerUser from "../../services/register";
 
-export default function SignUpScreen({ navigation }) {
+export default function SignUpScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [invalidError, setInvalidError] = useState("");
 
   const router = useRouter();
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
+    // Reset previous errors
     setNameError("");
     setEmailError("");
     setPasswordError("");
+    setInvalidError("");
 
     let hasError = false;
 
+    // Basic validations
     if (!name.trim()) {
       setNameError("Name is required.");
       hasError = true;
@@ -50,11 +55,25 @@ export default function SignUpScreen({ navigation }) {
       hasError = true;
     }
 
+    // If no validation errors, proceed with registration
     if (!hasError) {
-      // In a real app, you would send this data to your authentication service
-      console.log("Sign Up Data:", { name, email, password });
-      // Optionally navigate to the next screen
-      // navigation.navigate('HomeScreen');
+      try {
+        const result = await registerUser({ name, email, password });
+
+        if (result?.user) {
+          console.log(result?.user);
+
+          router.replace("/homeScreen");
+        } else if (result?.error) {
+          console.error("Registration failed:", result.error);
+          setInvalidError(result.error);
+        } else {
+          setInvalidError("An unexpected error occurred.");
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        setInvalidError("An unexpected error occurred.");
+      }
     }
   };
 
