@@ -28,7 +28,7 @@ export default function RootLayout() {
             barStyle={"dark-content"}
             backgroundColor={"white"}
           ></StatusBar>
-          <EmitUserId /> {/* Render the component to emit the user ID */}
+          <EmitUserId />
           <Stack>
             <Stack.Screen
               name="index"
