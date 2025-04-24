@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import getUsers from "../../services/getUsers.js"; // adjust path as needed
+import getUsers from "../../services/getUsers.js"; // Adjust the path as needed
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useFocusEffect } from "@react-navigation/native"; // Import the useFocusEffect hook
 
 const HomeScreen = () => {
   const [users, setUsers] = useState([]);
@@ -17,15 +18,29 @@ const HomeScreen = () => {
   const { user } = useAuth();
   const userId = user._id;
   const router = useRouter();
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const result = await getUsers({ userId });
-      setUsers(result);
-      setLoading(false);
-    };
 
-    fetchUsers();
-  }, []);
+  // Fetch users when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUsers = async () => {
+        setLoading(true); // Start loading when fetching users
+        try {
+          const result = await getUsers({ userId });
+          setUsers(result);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        } finally {
+          setLoading(false); // Stop loading after fetching users
+        }
+      };
+
+      fetchUsers(); // Call the fetchUsers function
+
+      return () => {
+        // Cleanup if needed when screen loses focus
+      };
+    }, [userId]) // Only refetch if userId changes
+  );
 
   if (loading) {
     return (

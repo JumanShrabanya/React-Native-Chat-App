@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import registerUser from "../../services/register";
 import { useAuth } from "../../contexts/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignUpScreen() {
   // user session
@@ -67,7 +66,7 @@ export default function SignUpScreen() {
 
         if (result?.user) {
           console.log(result?.user);
-          await AsyncStorage.setItem("token", result.token);
+          // await AsyncStorage.setItem("token", result.token);
           signIn({ user: result?.user, token: result.token });
           router.replace("/Home");
         } else if (result?.error) {

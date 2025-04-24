@@ -95,7 +95,7 @@ const ChatScreen = () => {
           item.sender === currentUser ? "text-white" : "text-black"
         }`}
       >
-        {item.text}
+        {item.text || "No message"}{" "}
       </Text>
     </View>
   );

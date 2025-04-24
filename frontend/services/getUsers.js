@@ -1,6 +1,6 @@
 const getUsers = async ({ userId }) => {
   try {
-    const response = await fetch(`http://192.168.153.21:3000/api/users`, {
+    const response = await fetch("http://192.168.153.21:3000/api/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
