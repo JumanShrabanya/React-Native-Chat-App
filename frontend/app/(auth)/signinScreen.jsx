@@ -25,7 +25,6 @@ export default function SignInpScreen() {
   const [passwordError, setPasswordError] = useState("");
 
   const router = useRouter();
-  const navigation = useNavigation();
 
   const handleSignIn = async () => {
     setEmailError("");

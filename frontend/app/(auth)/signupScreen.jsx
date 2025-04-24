@@ -12,8 +12,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import registerUser from "../../services/register";
+import { useAuth } from "../../contexts/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignUpScreen() {
+  // user session
+  const { user, loading, signIn } = useAuth();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,8 +67,9 @@ export default function SignUpScreen() {
 
         if (result?.user) {
           console.log(result?.user);
-
-          router.replace("/homeScreen");
+          await AsyncStorage.setItem("token", result.token);
+          signIn({ user: result?.user, token: result.token });
+          router.replace("/Home");
         } else if (result?.error) {
           console.error("Registration failed:", result.error);
           setInvalidError(result.error);

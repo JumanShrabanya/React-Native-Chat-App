@@ -10,6 +10,7 @@ export default function TabsLayout() {
       ></StatusBar>
       <Tabs>
         <Tabs.Screen name="Home" options={{ headerShown: false }}></Tabs.Screen>
+        <Tabs.Screen name="Chat" options={{ headerShown: false }}></Tabs.Screen>
       </Tabs>
     </>
   );
