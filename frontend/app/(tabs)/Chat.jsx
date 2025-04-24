@@ -26,20 +26,11 @@ const ChatScreen = () => {
   const [recipientName, setRecipientName] = useState("");
   const socketRef = useRef();
   const router = useRouter();
-  const { user } = useAuth(); // Get logged-in user's data
+  const { user } = useAuth();
 
-  const currentUser = user._id; // logged-in user's ID
-  const recipientUser = userId; // recipient user ID from params
+  const currentUser = user._id;
+  const recipientUser = userId;
 
-  // Fetch recipient's data dynamically
-  useEffect(() => {
-    fetch(`https://yourapi.com/users/${recipientUser}`) // Replace with your actual API URL
-      .then((response) => response.json())
-      .then((data) => setRecipientName(data.name)) // Set recipient's name
-      .catch((err) => console.error("Error fetching recipient data", err));
-  }, [recipientUser]);
-
-  // Setup socket connection and message handling
   useEffect(() => {
     socketRef.current = io(SOCKET_SERVER_URL);
 
