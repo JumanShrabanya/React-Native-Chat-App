@@ -9,15 +9,17 @@ import {
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import getUsers from "../../services/getUsers.js"; // adjust path as needed
+import { useAuth } from "../../contexts/AuthContext.jsx";
 
 const HomeScreen = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const { user } = useAuth();
+  const userId = user._id;
   const router = useRouter();
   useEffect(() => {
     const fetchUsers = async () => {
-      const result = await getUsers();
+      const result = await getUsers({ userId });
       setUsers(result);
       setLoading(false);
     };

@@ -31,9 +31,6 @@ const ProfileScreen = () => {
         <Text className="text-lg text-gray-600">
           {user?.email || "johndoe@example.com"}
         </Text>
-        <Text className="text-sm text-gray-500 text-center mt-2">
-          {user?.bio || "A passionate developer building cool stuff!"}
-        </Text>
       </View>
 
       {/* Edit Profile Button */}
