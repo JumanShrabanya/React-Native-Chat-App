@@ -1,4 +1,5 @@
-import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
+import { Redirect, useRouter } from "expo-router";
 import {
   View,
   Text,
@@ -10,6 +11,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function App() {
   const router = useRouter();
+  // user session
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null; // or show a loading spinner
+  }
+
+  if (user) {
+    return <Redirect href="/Home" />;
+  }
 
   return (
     <SafeAreaView className="h-full">

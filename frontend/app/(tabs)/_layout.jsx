@@ -9,10 +9,7 @@ export default function TabsLayout() {
         backgroundColor={"white"}
       ></StatusBar>
       <Tabs>
-        <Tabs.Screen
-          name="homeScreen"
-          options={{ headerShown: false }}
-        ></Tabs.Screen>
+        <Tabs.Screen name="Home" options={{ headerShown: false }}></Tabs.Screen>
       </Tabs>
     </>
   );

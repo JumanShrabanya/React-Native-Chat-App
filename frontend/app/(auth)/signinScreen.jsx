@@ -10,9 +10,14 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
+import loginUser from "../../services/login.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 
-export default function SignInpScreen({ navigation }) {
+export default function SignInpScreen() {
+  // user session
+  const { user, loading, signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,8 +25,9 @@ export default function SignInpScreen({ navigation }) {
   const [passwordError, setPasswordError] = useState("");
 
   const router = useRouter();
+  const navigation = useNavigation();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setEmailError("");
     setPasswordError("");
 
@@ -44,10 +50,16 @@ export default function SignInpScreen({ navigation }) {
     }
 
     if (!hasError) {
-      // In a real app, you would send this data to your authentication service
-      console.log("Sign Up Data:", { email, password });
-      // Optionally navigate to the next screen
-      // navigation.navigate('HomeScreen');
+      const result = await loginUser({ email, password });
+      console.log(result);
+
+      if (result?.token || result?.user) {
+        await AsyncStorage.setItem("token", result.token);
+        signIn({ user: result?.user, token: result.token });
+        router.replace("/Home");
+      } else {
+        setLoginError(result?.error || "Login failed. Please try again.");
+      }
     }
   };
 
@@ -66,7 +78,7 @@ export default function SignInpScreen({ navigation }) {
           }}
         >
           <Text className="text-3xl font-bold text-gray-800 mb-8 text-center">
-            Sign Up
+            Sign In
           </Text>
           <View className="mb-4">
             <Text className="text-gray-700 mb-2">Email</Text>
@@ -104,7 +116,7 @@ export default function SignInpScreen({ navigation }) {
             className="bg-blue-500 py-3 rounded-md items-center mt-6"
             onPress={handleSignIn}
           >
-            <Text className="text-white text-lg font-bold">Sign Up</Text>
+            <Text className="text-white text-lg font-bold">Sign In</Text>
           </TouchableOpacity>
 
           <View className="flex-row justify-center mt-6">
