@@ -17,7 +17,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 
 export default function SignInpScreen() {
   // user session
-  const { user, loading, signIn } = useAuth();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

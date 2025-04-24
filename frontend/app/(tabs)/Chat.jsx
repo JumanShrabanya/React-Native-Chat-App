@@ -1,3 +1,5 @@
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -14,13 +16,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const messages = [
   { id: "1", text: "Hey!", sender: "me" },
-  { id: "2", text: "Yo, what’s up?", sender: "other" },
+  { id: "2", text: "Yo, what's up?", sender: "other" },
   { id: "3", text: "All good. You?", sender: "me" },
   { id: "4", text: "Chillin", sender: "other" },
 ];
 
 const ChatScreen = () => {
   const [input, setInput] = useState("");
+
+  const router = useRouter(``);
 
   const renderItem = ({ item }) => (
     <View
@@ -43,7 +47,13 @@ const ChatScreen = () => {
           keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0} // Adjust for tab bar height
         >
           {/* Header */}
-          <View className="p-4 border-b border-gray-200 bg-white">
+          <View className="flex-row items-center p-4 border-b border-gray-200 bg-white">
+            {/* Back Arrow */}
+            <TouchableOpacity onPress={() => router.back()} className="mr-4">
+              <FontAwesome name="arrow-left" size={20} color="#000" />
+            </TouchableOpacity>
+
+            {/* User Info */}
             <Text className="text-lg font-bold">Alice</Text>
           </View>
 
