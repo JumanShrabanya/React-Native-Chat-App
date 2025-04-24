@@ -48,7 +48,10 @@ const HomeScreen = () => {
           <TouchableOpacity
             className="flex-row items-center gap-4 py-4 border-b border-gray-200"
             onPress={() => {
-              router.push("/Chat");
+              router.push({
+                pathname: "/Chat",
+                params: { userId: item._id }, // Directly passing userId
+              });
             }}
           >
             {/* Avatar */}

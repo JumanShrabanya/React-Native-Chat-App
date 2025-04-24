@@ -30,48 +30,25 @@ const users = {}; // To store user ID to socket ID mapping
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  socket.on("setUser", (userId) => {
+  socket.on("register", (userId) => {
     users[userId] = socket.id;
-    console.log(`User ${userId} connected with socket ${socket.id}`);
+    console.log(`${userId} registered with socket ID ${socket.id}`);
   });
 
-  socket.on("startPrivateChat", (recipientId, senderId) => {
-    // Generate a unique room ID by combining and sorting user IDs
-    const roomID = [senderId, recipientId].sort().join("-");
-    socket.join(roomID);
-
-    const recipientSocketId = users[recipientId];
-    if (recipientSocketId) {
-      io.to(recipientSocketId).emit("joinPrivateChatRoom", roomID);
+  socket.on("send_message", ({ to, message, from }) => {
+    const targetSocket = users[to];
+    if (targetSocket) {
+      io.to(targetSocket).emit("receive_message", { message, from });
     }
-
-    console.log(
-      `Private chat started between ${senderId} and ${recipientId} in room ${roomID}`
-    );
-  });
-
-  socket.on("joinPrivateChatRoom", (roomID) => {
-    socket.join(roomID);
-    console.log(`User ${socket.id} joined private chat room: ${roomID}`);
-  });
-
-  socket.on("sendMessage", (messageData) => {
-    io.to(messageData.room).emit("receiveMessage", messageData);
-    console.log("Message received in room:", messageData.room, messageData);
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
-    // Clean up user mappings
-    for (const userId in users) {
-      if (users[userId] === socket.id) {
-        delete users[userId];
-        break;
-      }
+    console.log("User disconnected:", socket.id);
+    for (let key in users) {
+      if (users[key] === socket.id) delete users[key];
     }
   });
 });
-
 connectDB()
   .then(() => {
     server.listen(port, () => {

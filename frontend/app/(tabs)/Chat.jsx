@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -13,45 +13,87 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import io from "socket.io-client";
+import { useAuth } from "../../contexts/AuthContext";
 
-// Temporary local storage for messages (you can replace this with backend data fetching)
+// Replace with your backend IP and port
+const SOCKET_SERVER_URL = "http://192.168.153.21:3000";
 
 const ChatScreen = () => {
+  const { userId } = useLocalSearchParams(); // Get recipient's userId from params
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [recipientName, setRecipientName] = useState("");
+  const socketRef = useRef();
   const router = useRouter();
+  const { user } = useAuth(); // Get logged-in user's data
+
+  const currentUser = user._id; // logged-in user's ID
+  const recipientUser = userId; // recipient user ID from params
+
+  // Fetch recipient's data dynamically
+  useEffect(() => {
+    fetch(`https://yourapi.com/users/${recipientUser}`) // Replace with your actual API URL
+      .then((response) => response.json())
+      .then((data) => setRecipientName(data.name)) // Set recipient's name
+      .catch((err) => console.error("Error fetching recipient data", err));
+  }, [recipientUser]);
+
+  // Setup socket connection and message handling
+  useEffect(() => {
+    socketRef.current = io(SOCKET_SERVER_URL);
+
+    // Register this user
+    socketRef.current.emit("register", currentUser);
+
+    // Listen for incoming messages
+    socketRef.current.on("receive_message", ({ message, from }) => {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), text: message, sender: from },
+      ]);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
 
   // Handle sending a message
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (input.trim()) {
-      const newMessage = {
-        id: (messages.length + 1).toString(),
+      const msg = {
+        id: Date.now().toString(),
         text: input,
-        sender: "me",
+        sender: currentUser,
       };
 
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => [...prevMessages, msg]);
 
-      // Optionally, here you can make an API call to save the message in the backend
-      // Example: await sendMessageToBackend(newMessage);
+      // Send message to the backend
+      socketRef.current.emit("send_message", {
+        to: recipientUser,
+        from: currentUser,
+        message: input,
+      });
 
-      setInput(""); // Clear the input after sending
+      setInput(""); // Clear the input field
     }
   };
 
-  // Render message item
+  // Render messages dynamically
   const renderItem = ({ item }) => (
     <View
       className={`px-4 py-2 my-1 rounded-lg max-w-[75%] ${
-        item.sender === "me" ? "self-end bg-blue-500" : "self-start bg-gray-200"
+        item.sender === currentUser
+          ? "self-end bg-blue-500"
+          : "self-start bg-gray-200"
       }`}
     >
       <Text
-        className={
-          item.sender === "me"
-            ? "text-white text-[15px]"
-            : "text-black  text-[15px]"
-        }
+        className={`text-[15px] ${
+          item.sender === currentUser ? "text-white" : "text-black"
+        }`}
       >
         {item.text}
       </Text>
@@ -66,18 +108,15 @@ const ChatScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         >
-          {/* Header */}
           <View className="flex-row items-center p-4 border-b border-gray-200 bg-white">
-            {/* Back Arrow */}
             <TouchableOpacity onPress={() => router.back()} className="mr-4">
               <FontAwesome name="arrow-left" size={20} color="#000" />
             </TouchableOpacity>
-
-            {/* User Info */}
-            <Text className="text-lg font-bold">Alice</Text>
+            <Text className="text-lg font-bold">
+              Chat with {recipientName || "User"}
+            </Text>
           </View>
 
-          {/* Messages */}
           <FlatList
             className="px-4 flex-1"
             data={messages}
@@ -86,7 +125,6 @@ const ChatScreen = () => {
             contentContainerStyle={{ paddingVertical: 10 }}
           />
 
-          {/* Input box */}
           <View className="flex-row items-center p-3 border-t border-gray-200 bg-white">
             <TextInput
               value={input}
